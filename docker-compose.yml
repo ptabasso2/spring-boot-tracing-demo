@@ -26,14 +26,14 @@ services:
     networks:
       - app
 
-  spring-app:
+  springrouting:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: spring-app
+    container_name: springrouting
     environment:
-      - JAVA_TOOL_OPTIONS=-javaagent:/root/dd-java-agent.jar -Ddd.agent.host=dd-agent -Ddd.service=spring-app -Ddd.env=dev -Ddd.version=1.0 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.tags=env:dev,moovit.service_path:test/moovit
-    hostname: spring-app
+      - JAVA_TOOL_OPTIONS=-javaagent:/root/dd-java-agent.jar -Ddd.agent.host=dd-agent -Ddd.service=springrouting -Ddd.env=dev -Ddd.version=1.0 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.tags=env:dev,moovit.service_path:random/path
+    hostname: springrouting
     ports:
       - "8080:8080"
     volumes:

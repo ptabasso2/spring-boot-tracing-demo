@@ -13,8 +13,10 @@ This Spring Boot application demonstrates:
 
 ```plaintext
 spring-boot-tracing-demo
-├── build.gradle.kts                # Gradle build script
-├── settings.gradle.kts             # Gradle settings
+├── Dockerfile                     # Dockerfile for the Spring Boot app
+├── docker-compose.yml             
+├── build.gradle.kts               
+├── settings.gradle.kts            
 ├── src
 │   ├── main
 │   │   ├── java
@@ -30,8 +32,8 @@ spring-boot-tracing-demo
 │   │   │                   ├── CustomTraceInterceptor.java
 │   │   │                   ├── TraceInterceptorRegistrar.java
 │   │   └── resources
-│   │       └── application.yml     # Configuration file
-└── README.md                       # Project description
+│   │       └── application.yml    
+└── README.md                      
 ```
 
 ---
@@ -64,7 +66,7 @@ public class LineArrivalsController {
 
 ### 2. PreRoutingFilter
 
-Simulates a pre-routing failure for testing purposes by returning an HTTP 412 response before reaching the routing layer.
+Simulates a pre-routing failure for testing purposes by returning an **HTTP 412** response before reaching the routing layer.
 
 ```java
 package com.example.tracingdemo.filter;
@@ -112,7 +114,7 @@ public class PreRoutingFilter implements Filter {
 
 ### 3. CustomTraceInterceptor
 
-Enhances Datadog spans by setting a custom resource name for 4xx responses when `http.route` is unavailable.
+Enhances Datadog spans by setting a custom resource name for **4xx** responses when `http.route` is unavailable.
 
 ```java
 package com.example.tracingdemo.tracing;
@@ -207,7 +209,7 @@ public class TracingDemoApplication {
 
 ---
 
-### 6. `application.yml`
+### 6. application.yml
 
 Defines the application’s context path.
 
@@ -224,7 +226,7 @@ server:
 
 ---
 
-### 7. `build.gradle.kts`
+### 7. build.gradle.kts
 
 Configures dependencies and Java settings for the project.
 
@@ -261,10 +263,54 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 ```
+## Build Instructions
+
+### **Local Setup**
+
+#### **Prerequisites**
+1. Ensure you have Java 17 installed.
+2. Install Gradle 8.11.1.
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/ptabasso2/spring-boot-tracing-demo.git
+   cd spring-boot-tracing-demo
+   ```
+
+#### **Build the Application Locally**
+1. Build the Spring Boot application:
+   ```bash
+   ./gradlew build
+   ```
+   This command compiles the code, runs the tests, and packages the application into a runnable JAR file located in `build/libs/`.
+
+2. Run the application:
+   ```bash
+   java -javaagent:./dd-java-agent.jar -Ddd.service=springrouting -Ddd.env=dev -Ddd.version=1.2 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.tags=env:dev,moovit.service_path:test/moovit -jar build/libs/spring-boot-tracing-demo.jar
+   ```
 
 ---
 
-## Manual Testing Using `curl`
+### **Bootstrap Application Using Docker Compose**
+
+#### **Prerequisites**
+1. Install Docker and Docker Compose.
+2. Obtain a valid Datadog API key.
+
+#### **Start the Application**
+Run the following command to start the services:
+```bash
+DD_API_KEY=xxxxxx docker-compose up --build -d
+```
+- Replace `xxxxxx` with your valid Datadog API key.
+
+#### **Verify the Application**
+1. Access the Spring Boot application at: [http://localhost:8080/services/V4/LineArrivals](http://localhost:8080/services/V4/LineArrivals).
+2. Confirm Datadog metrics by checking your Datadog dashboard.
+
+
+---
+
+## Manual Testing Using curl
 
 ### 1. Test Success Scenario (HTTP 200)
 
@@ -272,12 +318,12 @@ tasks.withType<Test> {
 curl -X POST http://localhost:8080/services-app/services/V4/LineArrivals
 ```
 
-- **Expected Output (Console):**
+- **Expected behavior:**
   ```
-  Controller method invoked.
+  Controller method invoked. Returning HTTP 200
   ```
 
-- **Expected HTTP Response:**
+- **Expected ouput (Console):**
   ```
   Line arrivals processed successfully.
   ```
@@ -290,12 +336,13 @@ curl -X POST http://localhost:8080/services-app/services/V4/LineArrivals
 curl -X POST http://localhost:8080/services-app/services/V4/LineArrivals?simulatePreRouting=true
 ```
 
-- **Expected Output (Console):**
+- **Expected behavior:**
   ```
   Pre-routing failure triggered. Returning HTTP 412.
+  The resource name is renamed and will appear now as `POST /random/path' as specified in the `moovit.service_path` span attribute
   ```
 
-- **Expected HTTP Response:**
+- **Expected output (Console):**
   ```
   Precondition failed before reaching routing layer.
   ```
