@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: spring-boot-tracing-demo
+  #mvc:
+  #  servlet:
+  #    path: /services
+
+server:
+  port: 8080
+  servlet:
+    context-path: /services-app

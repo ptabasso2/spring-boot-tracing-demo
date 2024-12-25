@@ -1,0 +1,47 @@
+version: '3.5'
+
+services:
+  dd-agent:
+    container_name: dd-agent
+    image: gcr.io/datadoghq/agent:latest-jmx
+    environment:
+      - DD_HOSTNAME=datadog
+      - DD_API_KEY
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC="true"
+      - DD_LOG_LEVEL=debug
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_CONTAINER_EXCLUDE_LOGS="name:datadog-agent"
+      - SD_JMX_ENABLE=true
+    ports:
+      - "8125:8125"
+      - "8126:8126"
+    volumes:
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - app
+
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-app
+    environment:
+      - JAVA_TOOL_OPTIONS=-javaagent:/root/dd-java-agent.jar -Ddd.agent.host=dd-agent -Ddd.service=spring-app -Ddd.env=dev -Ddd.version=1.0 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.tags=env:dev,moovit.service_path:test/moovit
+    hostname: spring-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dd-java-agent.jar:/root/dd-java-agent.jar
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
+    name: app
