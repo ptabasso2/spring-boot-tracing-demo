@@ -351,10 +351,10 @@ curl -X POST http://localhost:8080/services-app/services/V4/LineArrivals?simulat
 
 ## Goals of the Key Components
 
-### `PreRoutingFilter`
+### PreRoutingFilter
 - Simulates a scenario where the routing layer is skipped (e.g., validation or preconditions fail).
 - Helps test how Datadog traces handle requests without `http.route`.
 
-### `CustomTraceInterceptor`
-- Ensures consistent span metadata in Datadog for HTTP 4xx responses.
+### CustomTraceInterceptor
+- Reset span metadata in Datadog for HTTP 4xx responses.
 - Provides meaningful resource names (`Method + "/" + moovit.service_path`) when `http.route` is unavailable.
