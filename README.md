@@ -116,6 +116,10 @@ public class PreRoutingFilter implements Filter {
 
 Enhances Datadog spans by setting a custom resource name for **4xx** responses when `http.route` is unavailable.
 
+<p align="left">
+  <img src="img/springrouting.png" width="850" />
+</p>
+
 ```java
 package com.example.tracingdemo.tracing;
 
