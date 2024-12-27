@@ -339,6 +339,10 @@ curl -X POST http://localhost:8080/services-app/services/V4/LineArrivals
   Line arrivals processed successfully.
   ```
 
+<p align="left">
+  <img src="img/springrouting200.png" width="850" />
+</p>
+
 ---
 
 ### 2. Test Failure Scenario (HTTP 412)
@@ -352,11 +356,15 @@ curl -X POST http://localhost:8080/services-app/services/V4/LineArrivals?simulat
   Pre-routing failure triggered. Returning HTTP 412.
   The resource name is renamed and will appear now as `POST /random/path' as specified in the `moovit.service_path` span attribute
   ```
-
+  
 - **Expected output (Console):**
   ```
   Precondition failed before reaching routing layer.
   ```
+
+<p align="left">
+  <img src="img/springrouting412.png" width="850" />
+</p>
 
 ---
 
