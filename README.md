@@ -287,7 +287,14 @@ tasks.withType<Test> {
    ```
    This command compiles the code, runs the tests, and packages the application into a runnable JAR file located in `build/libs/`.
 
-2. Run the application:
+
+2. Start the Datadog Agent:
+   Replace `xxxxxxxx` with your Datadog API key:
+   ```bash
+   docker run --rm -d --name dd-agent-dogfood-jmx -v /var/run/docker.sock:/var/run/docker.sock:ro -v /proc/:/host/proc/:ro -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro -p 8126:8126 -p 8125:8125/udp -e DD_API_KEY=xxxxxxxx -e DD_APM_ENABLED=true -e DD_APM_NON_LOCAL_TRAFFIC=true -e DD_PROCESS_AGENT_ENABLED=true -e DD_DOGSTATSD_NON_LOCAL_TRAFFIC="true" -e DD_LOG_LEVEL=debug -e DD_LOGS_ENABLED=true -e DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true -e DD_CONTAINER_EXCLUDE_LOGS="name:datadog-agent" gcr.io/datadoghq/agent:latest-jmx
+   ```
+
+3. Run the application:
    ```bash
    java -javaagent:./dd-java-agent.jar -Ddd.service=springrouting -Ddd.env=dev -Ddd.version=1.2 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.tags=env:dev,moovit.service_path:test/moovit -jar build/libs/spring-boot-tracing-demo.jar
    ```
